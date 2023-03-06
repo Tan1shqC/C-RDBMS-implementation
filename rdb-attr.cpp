@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <set>
+#include <map>
+#include <tuple>
 #include "rdb.h"
 
 using namespace std;
@@ -18,6 +21,7 @@ public:
     virtual void disp() const = 0;
     virtual Attr &clone()const = 0;
     friend class Relation;
+    friend class Record;
 };
 
 class integerAttribute : public Attr

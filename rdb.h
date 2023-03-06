@@ -1,12 +1,27 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <set>
+#include <map>
+#include <tuple>
 
 using namespace std;
 
-class Attr;
-// Base class for attributes
-// Add operators for different attribute type in derived classes
+class Attr
+{ // Base class for attributes
+  // Add operators for different attribute type in derived classes
+public:
+    virtual bool operator==(const Attr &right) const = 0;
+    virtual bool operator!=(const Attr &right) const = 0;
+    virtual bool operator<(const Attr &right) const = 0;
+    virtual bool operator<=(const Attr &right) const = 0;
+    virtual bool operator>(const Attr &right) const = 0;
+    virtual bool operator>=(const Attr &right) const = 0;
+    virtual void disp() const = 0;
+    virtual Attr &clone()const = 0;
+    friend class Relation;
+    friend class Record;
+};
 
 class Record;
 class Relation;

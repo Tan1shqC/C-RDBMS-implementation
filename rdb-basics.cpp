@@ -64,6 +64,7 @@ public:
         }
     }
     friend class Relation;
+    friend Relation *naturaljoin(Relation *R1, Relation *R2, list<string> joinattr);
 };
 
 class Relation
@@ -73,6 +74,7 @@ class Relation
     vector<int> attrinds;     // mapping schema to indices
     list<Record *> recs;      // list of records
     vector<string> mapped_schema;
+    vector<int> attribute_type;
 
     // methods
 public:
@@ -94,7 +96,7 @@ public:
 
     Relation *Difference(string s1, string s2); //  rename an attribute in schema
 
-    friend Relation *naturaljoin(Relation *R1, Relation *R2, list<string> joinattr); //
+    friend Relation *naturaljoin(Relation *_R1, Relation *_R2, list<string> joinattr); //
 
     void disp() const
     {
@@ -160,6 +162,19 @@ public:
                 x++;
         }
     }
+    void AddRecord()
+    {
+        vector<Attr *> new_record(natttr);
+        int i = 0;
+        for (i = 0; i < natttr; ++i)
+        {
+            cout << "Enter the " << mapped_schema[i] << " value:" << endl;
+        }
+    }
+    Relation(int _natttr, vector<string> &_attrnames, vector<int> &_attrinds, vector<int> &_attribute_type) : natttr(_natttr), attrnames(_attrnames), attrinds(_attrinds), attribute_type(_attribute_type)
+    {
+
+    }
 };
 
 struct DNFformula
@@ -170,9 +185,9 @@ struct DNFformula
 Relation::Relation(int _natttr, int _nrecs, vector<string> &_attrnames, vector<int> &_attrinds, list<Record *> _recs) : natttr(_natttr), nrecs(_nrecs), attrnames(_attrnames), attrinds(_attrinds), mapped_schema(_natttr)
 {
     // constructor
-    for (int i = 0; i < natttr; ++i)
+    for (int i = 0; i < _natttr; ++i)
     {
-        mapped_schema[attrinds[i] - 1] = attrnames[i];
+        mapped_schema[_attrinds[i] - 1] = _attrnames[i];
     }
     for (auto x : _recs)
     {
@@ -180,9 +195,13 @@ Relation::Relation(int _natttr, int _nrecs, vector<string> &_attrnames, vector<i
     }
 }
 
-Relation::Relation(const Relation &R) : natttr(R.natttr), nrecs(R.nrecs), attrnames(R.attrnames), attrinds(R.attrinds)
+Relation::Relation(const Relation &R) : natttr(R.natttr), nrecs(R.nrecs), attrnames(R.attrnames), attrinds(R.attrinds), mapped_schema(R.natttr)
 {
     // copy constructor
+    for (int i = 0; i < R.natttr; ++i)
+    {
+        mapped_schema[R.attrinds[i] - 1] = R.attrnames[i];
+    }
     for (auto x : R.recs)
     {
         recs.push_back(new Record(*x));
@@ -255,7 +274,7 @@ Relation *cartesian_product(Relation *R1, Relation *R2) // All possible pair of 
         vector<int> attrind(R1->attrinds);
         for (auto x : R2->attrinds)
         {
-            attrind.push_back(x);
+            attrind.push_back(x + R1->natttr -1);
         }
         Relation *res = new Relation(R1->natttr + R2->natttr, R1->nrecs * R2->nrecs, attrname, attrind, recs);
         return res;
@@ -283,18 +302,18 @@ Relation *Relation::projection(list<string> projectattrs)
     {
         select_index.push_back(attr_map[x]);
     }
-    for(int i = 0; i < this->natttr; ++i)
+    for (int i = 0; i < this->natttr; ++i)
     {
         bool y = true;
-        for(auto x : select_index)
+        for (auto x : select_index)
         {
-            if(i == x)
+            if (i == x)
             {
                 y = false;
                 break;
             }
         }
-        if(y)
+        if (y)
         {
             del_index.push_back(i);
         }
@@ -355,7 +374,7 @@ Relation *Relation::Union(DNFformula *f)
     }
 
     Relation *res = new Relation(*this);
-    for (auto it1 = res->recs.begin(); it1 != res->recs.end(); )
+    for (auto it1 = res->recs.begin(); it1 != res->recs.end();)
     {
         bool x1 = false;
         for (auto it2 : f->ops)
@@ -420,35 +439,36 @@ Relation *Relation::Difference(string s1, string s2)
     return this;
 }
 
-int main()
-{
-    vector<string> _attrnames1 = {"name", "age"};
-    vector<int> _attrinds1 = {1, 2};
-    list<Record *> l1;
-    vector<Attr *> v1 = {new stringAttribute("Tanishq Choudhary"), new integerAttribute(19)};
-    l1.push_back(new Record(v1));
-    v1 = {new stringAttribute("Utsav Garg"), new integerAttribute(19)};
-    l1.push_back(new Record(v1));
-    Relation R1(2, 1, _attrnames1, _attrinds1, l1);
-    R1.disp();
+// int main()
+// {
+//     vector<string> _attrnames1 = {"name", "age"};
+//     vector<int> _attrinds1 = {1, 2};
+//     list<Record *> l1;
+//     vector<Attr *> v1 = {new stringAttribute("Tanishq Choudhary"), new integerAttribute(19)};
+//     l1.push_back(new Record(v1));
+//     v1 = {new stringAttribute("Utsav Garg"), new integerAttribute(19)};
+//     l1.push_back(new Record(v1));
+//     Relation R1(2, 1, _attrnames1, _attrinds1, l1);
+//     R1.disp();
 
-    vector<string> _attrnames2 = {"age", "name"};
-    vector<int> _attrinds2 = {1, 2};
-    list<Record *> l2;
-    vector<Attr *> v2 = {new integerAttribute(19), new stringAttribute("Utsav Garg")};
-    l2.push_back(new Record(v2));
-    l2.push_back(new Record(v2));
-    Relation R2(2, 1, _attrnames2, _attrinds2, l2);
-    R2.disp();
+//     vector<string> _attrnames2 = {"age", "name"};
+//     vector<int> _attrinds2 = {1, 2};
+//     list<Record *> l2;
+//     vector<Attr *> v2 = {new integerAttribute(19), new stringAttribute("Utsav Garg")};
+//     l2.push_back(new Record(v2));
+//     l2.push_back(new Record(v2));
+//     Relation R2(2, 1, _attrnames2, _attrinds2, l2);
+//     R2.disp();
 
-    struct DNFformula f;
-    list<tuple<string, char, Attr *>> l3;
-    l3.push_back(make_tuple("name", '>', new stringAttribute("U")));
-    f.ops.push_back(l3);
+//     struct DNFformula f;
+//     list<tuple<string, char, Attr *>> l3;
+//     //.push_back(make_tuple("name", '=', new stringAttribute("Tanishq Choudhary")));
+//     l3.push_back(make_tuple("age", '>', new integerAttribute(18)));
+//     f.ops.push_back(l3);
 
-    Relation *R3 = R1.Union(&f);
-    R3->delete_copies();
-    R3->disp();
+//     Relation *R3 = R1.Union(&f);
+//     R3->delete_copies();
+//     R3->disp();
 
-    return 0;
-}
+//     return 0;
+// }
