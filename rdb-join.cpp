@@ -97,38 +97,38 @@ Relation *naturaljoin(Relation *_R1, Relation *_R2, list<string> joinattr) //
 
 using namespace std;
 
-int main()
-{
-    vector<string> _attrnames1 = {"Name", "EmpId", "DeptName"};
-    vector<int> _attrinds1 = {1, 2, 3};
-    list<Record *> l1;
-    vector<Attr *> v1 = {new stringAttribute("Harry"), new integerAttribute(3415), new stringAttribute("Finance")};
-    l1.push_back(new Record(v1));
-    v1 = {new stringAttribute("Sally"), new integerAttribute(2241), new stringAttribute("Sales")};
-    l1.push_back(new Record(v1));
-    v1 = {new stringAttribute("George"), new integerAttribute(3401), new stringAttribute("Finance")};
-    l1.push_back(new Record(v1));
-    v1 = {new stringAttribute("Harriet"), new integerAttribute(2202), new stringAttribute("Sales")};
-    l1.push_back(new Record(v1));
-    Relation R1(3, 4, _attrnames1, _attrinds1, l1);
-    //R1.disp();
+// int main()
+// {
+//     vector<string> _attrnames1 = {"Name", "EmpId", "DeptName"};
+//     vector<int> _attrinds1 = {1, 2, 3};
+//     list<Record *> l1;
+//     vector<Attr *> v1 = {new stringAttribute("Harry"), new integerAttribute(3415), new stringAttribute("Finance")};
+//     l1.push_back(new Record(v1));
+//     v1 = {new stringAttribute("Sally"), new integerAttribute(2241), new stringAttribute("Sales")};
+//     l1.push_back(new Record(v1));
+//     v1 = {new stringAttribute("George"), new integerAttribute(3401), new stringAttribute("Finance")};
+//     l1.push_back(new Record(v1));
+//     v1 = {new stringAttribute("Harriet"), new integerAttribute(2202), new stringAttribute("Sales")};
+//     l1.push_back(new Record(v1));
+//     Relation R1(3, 4, _attrnames1, _attrinds1, l1);
+//     //R1.disp();
 
-    vector<string> _attrnames2 = {"DeptName", "Manager"};
-    vector<int> _attrinds2 = {1, 2};
-    list<Record *> l2;
-    vector<Attr *> v2 = {new stringAttribute("Finance"), new stringAttribute("George")};
-    l2.push_back(new Record(v2));
-    v2 = {new stringAttribute("Sales"), new stringAttribute("Harriet")};
-    l2.push_back(new Record(v2));
-    v2 = {new stringAttribute("Productions"), new stringAttribute("Charles")};
-    l2.push_back(new Record(v2));
-    Relation R2(2, 3, _attrnames2, _attrinds2, l2);
-    //R2.disp();
+//     vector<string> _attrnames2 = {"DeptName", "Manager"};
+//     vector<int> _attrinds2 = {1, 2};
+//     list<Record *> l2;
+//     vector<Attr *> v2 = {new stringAttribute("Finance"), new stringAttribute("George")};
+//     l2.push_back(new Record(v2));
+//     v2 = {new stringAttribute("Sales"), new stringAttribute("Harriet")};
+//     l2.push_back(new Record(v2));
+//     v2 = {new stringAttribute("Productions"), new stringAttribute("Charles")};
+//     l2.push_back(new Record(v2));
+//     Relation R2(2, 3, _attrnames2, _attrinds2, l2);
+//     //R2.disp();
 
-    list<string> joinattr;
-    Relation *R3 = naturaljoin(&R1, &R2, joinattr);
-    //R3->delete_copies();
-    R3->disp();
+//     list<string> joinattr;
+//     Relation *R3 = naturaljoin(&R1, &R2, joinattr);
+//     //R3->delete_copies();
+//     R3->disp();
 
-    return 0;
-}
+//     return 0;
+// }

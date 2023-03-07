@@ -4,183 +4,185 @@
 #include <set>
 #include <map>
 #include <tuple>
-#include "rdb.h"
 #include "rdb-attr.cpp"
+#include "./libfort/lib/fort.hpp"
+#include "./libfort/lib/fort.c"
 
 using namespace std;
 
-class Record
-{ // storing data for each record
-    vector<Attr *> attrptr;
-    // methods
-public:
-    Record(vector<Attr *> &_attrptr)
-    {
-        // constructor
-        for (auto it : _attrptr)
-        {
-            Attr &temp = it->clone();
-            attrptr.push_back(&temp);
-        }
-    }
-    Record(const Record &r)
-    {
-        // copy constructor
-        for (auto it : r.attrptr)
-        {
-            Attr &temp = it->clone();
-            attrptr.push_back(&temp);
-        }
-    }
-    void print() const
-    {
-        for (auto x : this->attrptr)
-        {
-            x->disp();
-        }
-        cout << endl;
-    }
-    bool operator==(Record &r)
-    {
-        vector<Attr *>::iterator it = r.attrptr.begin();
-        for (auto x : this->attrptr)
-        {
-            if (*x != **it)
-            {
-                return false;
-            }
-            else
-            {
-                it++;
-            }
-        }
-        return true;
-    }
-    void join_records(Record *r1, Record *r2)
-    {
-        for (auto x : r2->attrptr)
-        {
-            r1->attrptr.push_back(x);
-        }
-    }
-    friend class Relation;
-    friend Relation *naturaljoin(Relation *R1, Relation *R2, list<string> joinattr);
-};
-
-class Relation
-{                             // storing a relation
-    int natttr, nrecs;        // number of attributes and records
-    vector<string> attrnames; // schema
-    vector<int> attrinds;     // mapping schema to indices
-    list<Record *> recs;      // list of records
-    vector<string> mapped_schema;
-    vector<int> attribute_type;
-
-    // methods
-public:
-    Relation(int _natttr, int _nrecs, vector<string> &_attrnames, vector<int> &_attrinds, list<Record *> _recs); // constructor
-
-    Relation(const Relation &R); // copy constructor
-
-    friend Relation *Union(Relation *R1, Relation *R2); // All records of both R1 and R2
-
-    friend Relation *Difference(Relation *R1, Relation *R2); // Records in R1 but not in R2
-
-    friend Relation *cartesian_product(Relation *R1, Relation *R2); // All possible pair of records from R1 and R2(given they don't have a common attribute)
-
-    Relation *projection(list<string> projectattrs); // New relation with subset of columns (passes this pointer)
-
-    Relation *Union(DNFformula *f); // New relation with a subset of records matching a boolean
-
-    //                              // expression in the attribute values in disjunctive normal form.
-
-    Relation *Difference(string s1, string s2); //  rename an attribute in schema
-
-    friend Relation *naturaljoin(Relation *_R1, Relation *_R2, list<string> joinattr); //
-
-    void disp() const
-    {
-        for (auto x : this->attrnames)
-        {
-            cout << x << " ";
-        }
-        cout << endl;
-        for (auto x : recs)
-        {
-            x->print();
-        }
-    }
-
-    void rearrange(const Relation &R)
-    {
-        map<string, int> mapping1;
-        int i;
-        for (i = 0; i < R.natttr; ++i)
-        {
-            mapping1[R.attrnames[i]] = R.attrinds[i];
-        }
-
-        map<string, int> mapping2;
-        for (i = 0; i < R.natttr; ++i)
-        {
-            mapping2[this->attrnames[i]] = this->attrinds[i];
-        }
-
-        vector<pair<int, int>> swap_indexes;
-        bool y = true;
-        for (auto x : R.attrnames)
-        {
-            swap_indexes.push_back(make_pair(mapping1[x] - 1, mapping2[x] - 1));
-        }
-
-        for (auto x : this->recs)
-        {
-            vector<Attr *> copy(x->attrptr);
-            for (auto y : swap_indexes)
-            {
-                x->attrptr[y.first] = copy[y.second];
-            }
-        }
-        this->attrinds = R.attrinds;
-        this->attrnames = R.attrnames;
-    }
-    void delete_copies()
-    {
-        for (auto x = this->recs.begin(); x != this->recs.end();)
-        {
-            bool z = true;
-            for (auto y = this->recs.begin(); y != x; y++)
-            {
-                if (**y == **x)
-                {
-                    x = this->recs.erase(x);
-                    z = false;
-                    break;
-                }
-            }
-            if (z)
-                x++;
-        }
-    }
-    void AddRecord()
-    {
-        vector<Attr *> new_record(natttr);
-        int i = 0;
-        for (i = 0; i < natttr; ++i)
-        {
-            cout << "Enter the " << mapped_schema[i] << " value:" << endl;
-        }
-    }
-    Relation(int _natttr, vector<string> &_attrnames, vector<int> &_attrinds, vector<int> &_attribute_type) : natttr(_natttr), attrnames(_attrnames), attrinds(_attrinds), attribute_type(_attribute_type)
-    {
-
-    }
-};
-
-struct DNFformula
+Record::Record(vector<Attr *> &_attrptr)
 {
-    list<list<tuple<string, char, Attr *>>> ops;
-};
+    // constructor
+    for (auto it : _attrptr)
+    {
+        Attr &temp = it->clone();
+        attrptr.push_back(&temp);
+    }
+}
+Record::Record(const Record &r)
+{
+    // copy constructor
+    for (auto it : r.attrptr)
+    {
+        Attr &temp = it->clone();
+        attrptr.push_back(&temp);
+    }
+}
+void Record::print() const
+{
+    for (auto x : this->attrptr)
+    {
+        x->disp();
+    }
+    cout << endl;
+}
+bool Record::operator==(Record &r)
+{
+    vector<Attr *>::iterator it = r.attrptr.begin();
+    for (auto x : this->attrptr)
+    {
+        if (*x != **it)
+        {
+            return false;
+        }
+        else
+        {
+            it++;
+        }
+    }
+    return true;
+}
+void Record::join_records(Record *r1, Record *r2)
+{
+    for (auto x : r2->attrptr)
+    {
+        r1->attrptr.push_back(x);
+    }
+}
+
+void Relation::disp() const
+{
+    for (auto x : this->attrnames)
+    {
+        cout << x << " ";
+    }
+    cout << endl;
+    for (auto x : recs)
+    {
+        x->print();
+    }
+}
+
+void Relation::rearrange(const Relation &R)
+{
+    map<string, int> mapping1;
+    int i;
+    for (i = 0; i < R.natttr; ++i)
+    {
+        mapping1[R.attrnames[i]] = R.attrinds[i];
+    }
+
+    map<string, int> mapping2;
+    for (i = 0; i < R.natttr; ++i)
+    {
+        mapping2[this->attrnames[i]] = this->attrinds[i];
+    }
+
+    vector<pair<int, int>> swap_indexes;
+    bool y = true;
+    for (auto x : R.attrnames)
+    {
+        swap_indexes.push_back(make_pair(mapping1[x] - 1, mapping2[x] - 1));
+    }
+
+    for (auto x : this->recs)
+    {
+        vector<Attr *> copy(x->attrptr);
+        for (auto y : swap_indexes)
+        {
+            x->attrptr[y.first] = copy[y.second];
+        }
+    }
+    this->attrinds = R.attrinds;
+    this->attrnames = R.attrnames;
+}
+void Relation::delete_copies()
+{
+    for (auto x = this->recs.begin(); x != this->recs.end();)
+    {
+        bool z = true;
+        for (auto y = this->recs.begin(); y != x; y++)
+        {
+            if (**y == **x)
+            {
+                x = this->recs.erase(x);
+                z = false;
+                break;
+            }
+        }
+        if (z)
+            x++;
+    }
+}
+void Relation::AddRecord()
+{
+    vector<Attr *> new_record(natttr);
+    int i = 0;
+    for (i = 0; i < natttr; ++i)
+    {
+        Attr *attr;
+        cout << "Enter the " << mapped_schema[i] << " value:" << endl;
+        if(attribute_type[i] == 1)
+        {
+            string x;
+            cin >> x;
+            attr = new stringAttribute(x);
+        }
+        else if(attribute_type[i] == 2)
+        {
+            int x;
+            cin >> x;
+            attr = new integerAttribute(x);
+        }
+        else if(attribute_type[i] == 3)
+        {
+            float x;
+            cin >> x;
+            attr = new floatAttribute(x);
+        }
+        new_record[i] = attr;
+    }
+    Record *r = new Record(new_record);
+    recs.push_back(r);
+    nrecs++;
+}
+Relation::Relation(int _natttr, int _nrecs, vector<string> &_attrnames, vector<int> &_attrinds, vector<int> &_attribute_type) : natttr(_natttr), nrecs(_nrecs), attrnames(_attrnames), attrinds(_attrinds), attribute_type(_attribute_type), mapped_schema(_natttr)
+{
+    for (int i = 0; i < _natttr; ++i)
+    {
+        mapped_schema[_attrinds[i] - 1] = _attrnames[i];
+    }
+    for(int i = 0; i < _natttr; ++i)
+    {
+        name_map_type[mapped_schema[i]] = attribute_type[i];
+    }
+}
+
+Relation::Relation(int _natttr, int _nrecs, vector<string> &_attrnames, vector<int> &_attrinds, vector<int> &_attribute_type, list<Record *> _recs) : natttr(_natttr), nrecs(_nrecs), attrnames(_attrnames), attrinds(_attrinds), attribute_type(_attribute_type), mapped_schema(_natttr)
+{
+    for (auto x : _recs)
+    {
+        recs.push_back(new Record(*x));
+    }
+    for (int i = 0; i < _natttr; ++i)
+    {
+        mapped_schema[_attrinds[i] - 1] = _attrnames[i];
+    }
+    for(int i = 0; i < _natttr; ++i)
+    {
+        name_map_type[mapped_schema[i]] = attribute_type[i];
+    }
+}
 
 Relation::Relation(int _natttr, int _nrecs, vector<string> &_attrnames, vector<int> &_attrinds, list<Record *> _recs) : natttr(_natttr), nrecs(_nrecs), attrnames(_attrnames), attrinds(_attrinds), mapped_schema(_natttr)
 {
@@ -193,9 +195,13 @@ Relation::Relation(int _natttr, int _nrecs, vector<string> &_attrnames, vector<i
     {
         recs.push_back(new Record(*x));
     }
+    for(int i = 0; i < _natttr; ++i)
+    {
+        name_map_type[mapped_schema[i]] = attribute_type[i];
+    }
 }
 
-Relation::Relation(const Relation &R) : natttr(R.natttr), nrecs(R.nrecs), attrnames(R.attrnames), attrinds(R.attrinds), mapped_schema(R.natttr)
+Relation::Relation(const Relation &R) : natttr(R.natttr), nrecs(R.nrecs), attrnames(R.attrnames), attrinds(R.attrinds), mapped_schema(R.natttr), attribute_type(R.attribute_type)
 {
     // copy constructor
     for (int i = 0; i < R.natttr; ++i)
@@ -205,6 +211,10 @@ Relation::Relation(const Relation &R) : natttr(R.natttr), nrecs(R.nrecs), attrna
     for (auto x : R.recs)
     {
         recs.push_back(new Record(*x));
+    }
+    for(int i = 0; i < R.natttr; ++i)
+    {
+        name_map_type[mapped_schema[i]] = attribute_type[i];
     }
 }
 
@@ -274,9 +284,14 @@ Relation *cartesian_product(Relation *R1, Relation *R2) // All possible pair of 
         vector<int> attrind(R1->attrinds);
         for (auto x : R2->attrinds)
         {
-            attrind.push_back(x + R1->natttr -1);
+            attrind.push_back(x + R1->natttr);
         }
-        Relation *res = new Relation(R1->natttr + R2->natttr, R1->nrecs * R2->nrecs, attrname, attrind, recs);
+        vector<int> attribute_type(R1->attribute_type);
+        for (auto x : R2->attribute_type)
+        {
+            attribute_type.push_back(x);
+        }
+        Relation *res = new Relation(R1->natttr + R2->natttr, R1->nrecs * R2->nrecs, attrname, attrind, attribute_type, recs);
         return res;
     }
     else
@@ -290,6 +305,7 @@ Relation *Relation::projection(list<string> projectattrs)
     map<string, int> attr_map;
     vector<string> new_attrnames;
     vector<int> new_attrinds;
+    vector<int> new_attribute_type;
     vector<Attr *> temp;
     list<Record *> new_recs;
     int count = 1;
@@ -333,11 +349,13 @@ Relation *Relation::projection(list<string> projectattrs)
         {
             new_attrnames.push_back(this->mapped_schema[i]);
             new_attrinds.push_back(count);
+            new_attribute_type.push_back(this->attribute_type[i]);
             count++;
         }
     }
     R->attrinds = new_attrinds;
     R->attrnames = new_attrnames;
+    R->attribute_type = new_attribute_type;
     for (auto x : R->recs)
     {
         Record *temp;
@@ -362,6 +380,7 @@ Relation *Relation::projection(list<string> projectattrs)
         new_recs.push_back(temp);
     }
     R->recs = new_recs;
+    R->natttr = this->natttr - (int)del_index.size();
     return R;
 }
 
@@ -374,6 +393,7 @@ Relation *Relation::Union(DNFformula *f)
     }
 
     Relation *res = new Relation(*this);
+    int count = 0;
     for (auto it1 = res->recs.begin(); it1 != res->recs.end();)
     {
         bool x1 = false;
@@ -422,8 +442,10 @@ Relation *Relation::Union(DNFformula *f)
         {
             // dont select the record
             it1 = this->recs.erase(it1);
+            count++;
         }
     }
+    res->nrecs = res->nrecs - count;
     return res;
 }
 
@@ -439,16 +461,26 @@ Relation *Relation::Difference(string s1, string s2)
     return this;
 }
 
+void Relation::get_attributes()
+{
+    for(int i = 0; i < natttr; i++)
+    {
+        cout << mapped_schema[i] << " ";
+    }
+    cout << endl;
+}
+
 // int main()
 // {
 //     vector<string> _attrnames1 = {"name", "age"};
+//     vector<int> attr_type = {1, 2};
 //     vector<int> _attrinds1 = {1, 2};
 //     list<Record *> l1;
 //     vector<Attr *> v1 = {new stringAttribute("Tanishq Choudhary"), new integerAttribute(19)};
 //     l1.push_back(new Record(v1));
 //     v1 = {new stringAttribute("Utsav Garg"), new integerAttribute(19)};
 //     l1.push_back(new Record(v1));
-//     Relation R1(2, 1, _attrnames1, _attrinds1, l1);
+//     Relation R1(2, 1, _attrnames1, _attrinds1, attr_type, l1);
 //     R1.disp();
 
 //     vector<string> _attrnames2 = {"age", "name"};
@@ -457,7 +489,7 @@ Relation *Relation::Difference(string s1, string s2)
 //     vector<Attr *> v2 = {new integerAttribute(19), new stringAttribute("Utsav Garg")};
 //     l2.push_back(new Record(v2));
 //     l2.push_back(new Record(v2));
-//     Relation R2(2, 1, _attrnames2, _attrinds2, l2);
+//     Relation R2(2, 1, _attrnames2, _attrinds2, attr_type, l2);
 //     R2.disp();
 
 //     struct DNFformula f;
@@ -468,7 +500,61 @@ Relation *Relation::Difference(string s1, string s2)
 
 //     Relation *R3 = R1.Union(&f);
 //     R3->delete_copies();
-//     R3->disp();
+//     R3->relation_print();
 
 //     return 0;
 // }
+
+void Relation::relation_print()const
+    {
+        if (recs.empty() == true)
+        {
+            cout << "Relation is empty!" << endl;
+            return;
+        }
+        fort::utf8_table table;
+        table.set_border_style(FT_NICE_STYLE);
+        table.column(0).set_cell_text_align(fort::text_align::center);
+        table.column(2).set_cell_text_align(fort::text_align::center);
+
+        table << fort::header;
+        for (int i = 0; i < natttr; i++)
+        {
+            table << attrnames[i];
+        }
+        table << fort::endr;
+        for (auto it = recs.begin(); it != recs.end(); it++)
+        {
+            for (int i = 0; i < natttr; i++)
+            {
+                if (attribute_type[i] == 2)
+                {
+                    table << ((integerAttribute *)((*it)->attrptr[i]))->get_value();
+                    continue;
+                }
+                if (attribute_type[i] == 1)
+                {
+                    table << ((stringAttribute *)((*it)->attrptr[i]))->get_value();
+                    continue;
+                }
+                if (attribute_type[i] == 3)
+                {
+                    table << ((floatAttribute *)((*it)->attrptr[i]))->get_value();
+                    continue;
+                }
+            }
+            table << fort::endr;
+        }
+        table << fort::endr;
+        std::cout << table.to_string() << std::endl;
+
+        // for (int i = 0; i < natttr; i++)
+        // {
+        //     cout << attrnames[i] << " ";
+        // }
+        // cout << endl;
+        // for (auto it = recs.begin(); it != recs.end(); it++)
+        // {
+        //     (*it)->print_record();
+        // }
+    }

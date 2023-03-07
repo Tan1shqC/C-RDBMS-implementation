@@ -8,231 +8,199 @@
 
 using namespace std;
 
-class Attr
-{ // Base class for attributes
-  // Add operators for different attribute type in derived classes
-public:
-    virtual bool operator==(const Attr &right) const = 0;
-    virtual bool operator!=(const Attr &right) const = 0;
-    virtual bool operator<(const Attr &right) const = 0;
-    virtual bool operator<=(const Attr &right) const = 0;
-    virtual bool operator>(const Attr &right) const = 0;
-    virtual bool operator>=(const Attr &right) const = 0;
-    virtual void disp() const = 0;
-    virtual Attr &clone()const = 0;
-    friend class Relation;
-    friend class Record;
-};
+integerAttribute::integerAttribute(int data = 0) : _data(data) {}
 
-class integerAttribute : public Attr
+Attr &integerAttribute::clone() const
 {
-    int _data;
+    integerAttribute *copy = new integerAttribute(*this);
+    return *copy;
+}
 
-public:
-    integerAttribute(int data = 0) : _data(data) {}
-
-    Attr &clone()const
-    {
-        integerAttribute *copy = new integerAttribute(*this);
-        return *copy;
-    }
-
-    bool operator==(const Attr &right) const
-    {
-        const integerAttribute &_right = (const integerAttribute &)right;
-        if (this->_data == _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator!=(const Attr &right) const
-    {
-        const integerAttribute &_right = (const integerAttribute &)right;
-        if (this->_data != _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator<(const Attr &right) const
-    {
-        const integerAttribute &_right = (const integerAttribute &)right;
-        if (this->_data < _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator<=(const Attr &right) const
-    {
-        const integerAttribute &_right = (const integerAttribute &)right;
-        if (this->_data <= _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator>(const Attr &right) const
-    {
-        const integerAttribute &_right = (const integerAttribute &)right;
-        if (this->_data > _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator>=(const Attr &right) const
-    {
-        const integerAttribute &_right = (const integerAttribute &)right;
-        if (this->_data >= _right._data)
-            return true;
-        else
-            return false;
-    }
-    void disp() const
-    {
-        cout << this->_data << " ";
-    }
-};
-class floatAttribute : public Attr
+bool integerAttribute::operator==(const Attr &right) const
 {
-    float _data;
-
-public:
-    floatAttribute(float data = 0) : _data(data) {}
-
-    Attr &clone()const
-    {
-        floatAttribute *copy = new floatAttribute(*this);
-        return *copy;
-    }
-
-    bool operator==(const Attr &right) const
-    {
-        const floatAttribute &_right = (const floatAttribute &)right;
-        if (this->_data == _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator!=(const Attr &right) const
-    {
-        const floatAttribute &_right = (const floatAttribute &)right;
-        if (this->_data != _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator<(const Attr &right) const
-    {
-        const floatAttribute &_right = (const floatAttribute &)right;
-        if (this->_data < _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator<=(const Attr &right) const
-    {
-        const floatAttribute &_right = (const floatAttribute &)right;
-        if (this->_data <= _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator>(const Attr &right) const
-    {
-        const floatAttribute &_right = (const floatAttribute &)right;
-        if (this->_data > _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator>=(const Attr &right) const
-    {
-        const floatAttribute &_right = (const floatAttribute &)right;
-        if (this->_data >= _right._data)
-            return true;
-        else
-            return false;
-    }
-    void disp() const
-    {
-        cout << this->_data << " ";
-    }
-};
-class stringAttribute : public Attr
+    const integerAttribute &_right = (const integerAttribute &)right;
+    if (this->_data == _right._data)
+        return true;
+    else
+        return false;
+}
+bool integerAttribute::operator!=(const Attr &right) const
 {
-    string _data;
+    const integerAttribute &_right = (const integerAttribute &)right;
+    if (this->_data != _right._data)
+        return true;
+    else
+        return false;
+}
+bool integerAttribute::operator<(const Attr &right) const
+{
+    const integerAttribute &_right = (const integerAttribute &)right;
+    if (this->_data < _right._data)
+        return true;
+    else
+        return false;
+}
+bool integerAttribute::operator<=(const Attr &right) const
+{
+    const integerAttribute &_right = (const integerAttribute &)right;
+    if (this->_data <= _right._data)
+        return true;
+    else
+        return false;
+}
+bool integerAttribute::operator>(const Attr &right) const
+{
+    const integerAttribute &_right = (const integerAttribute &)right;
+    if (this->_data > _right._data)
+        return true;
+    else
+        return false;
+}
+bool integerAttribute::operator>=(const Attr &right) const
+{
+    const integerAttribute &_right = (const integerAttribute &)right;
+    if (this->_data >= _right._data)
+        return true;
+    else
+        return false;
+}
+void integerAttribute::disp() const
+{
+    cout << this->_data << " ";
+}
+int integerAttribute::get_value()
+{
+    return this->_data;
+}
 
-public:
-    stringAttribute(string data = "") : _data(data) {}
+floatAttribute::floatAttribute(float data = 0) : _data(data) {}
 
-    Attr &clone()const
-    {
-        stringAttribute *copy = new stringAttribute(*this);
-        return *copy;
-    }
+float floatAttribute::get_value()
+{
+    return this->_data;
+}
 
-    bool operator==(const Attr &right) const
-    {
-        const stringAttribute &_right = (const stringAttribute &)right;
-        if (this->_data == _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator!=(const Attr &right) const
-    {
-        const stringAttribute &_right = (const stringAttribute &)right;
-        if (this->_data != _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator<(const Attr &right) const
-    {
-        const stringAttribute &_right = (const stringAttribute &)right;
-        if (this->_data < _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator<=(const Attr &right) const
-    {
-        const stringAttribute &_right = (const stringAttribute &)right;
-        if (this->_data <= _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator>(const Attr &right) const
-    {
-        const stringAttribute &_right = (const stringAttribute &)right;
-        if (this->_data > _right._data)
-            return true;
-        else
-            return false;
-    }
-    bool operator>=(const Attr &right) const
-    {
-        const stringAttribute &_right = (const stringAttribute &)right;
-        if (this->_data >= _right._data)
-            return true;
-        else
-            return false;
-    }
-    void disp() const
-    {
-        cout << this->_data << " ";
-    }
-};
+Attr &floatAttribute::clone() const
+{
+    floatAttribute *copy = new floatAttribute(*this);
+    return *copy;
+}
 
-// int main()
-// {
-//     Attr *p;
-//     Attr *q;
-//     p = new integerAttribute(2);
-//     q = new integerAttribute(3);
-//     Attr *s;
-//     Attr *r;
-//     r = &(p->clone());
-//     s = &(q->clone());
-//     cout << (r < s) << endl;
-//     return 0;
-// }
+bool floatAttribute::operator==(const Attr &right) const
+{
+    const floatAttribute &_right = (const floatAttribute &)right;
+    if (this->_data == _right._data)
+        return true;
+    else
+        return false;
+}
+bool floatAttribute::operator!=(const Attr &right) const
+{
+    const floatAttribute &_right = (const floatAttribute &)right;
+    if (this->_data != _right._data)
+        return true;
+    else
+        return false;
+}
+bool floatAttribute::operator<(const Attr &right) const
+{
+    const floatAttribute &_right = (const floatAttribute &)right;
+    if (this->_data < _right._data)
+        return true;
+    else
+        return false;
+}
+bool floatAttribute::operator<=(const Attr &right) const
+{
+    const floatAttribute &_right = (const floatAttribute &)right;
+    if (this->_data <= _right._data)
+        return true;
+    else
+        return false;
+}
+bool floatAttribute::operator>(const Attr &right) const
+{
+    const floatAttribute &_right = (const floatAttribute &)right;
+    if (this->_data > _right._data)
+        return true;
+    else
+        return false;
+}
+bool floatAttribute::operator>=(const Attr &right) const
+{
+    const floatAttribute &_right = (const floatAttribute &)right;
+    if (this->_data >= _right._data)
+        return true;
+    else
+        return false;
+}
+void floatAttribute::disp() const
+{
+    cout << this->_data << " ";
+}
+
+stringAttribute::stringAttribute(string data = "") : _data(data) {}
+
+string stringAttribute::get_value()
+{
+    return this->_data;
+}
+
+Attr &stringAttribute::clone() const
+{
+    stringAttribute *copy = new stringAttribute(*this);
+    return *copy;
+}
+
+bool stringAttribute::operator==(const Attr &right) const
+{
+    const stringAttribute &_right = (const stringAttribute &)right;
+    if (this->_data == _right._data)
+        return true;
+    else
+        return false;
+}
+bool stringAttribute::operator!=(const Attr &right) const
+{
+    const stringAttribute &_right = (const stringAttribute &)right;
+    if (this->_data != _right._data)
+        return true;
+    else
+        return false;
+}
+bool stringAttribute::operator<(const Attr &right) const
+{
+    const stringAttribute &_right = (const stringAttribute &)right;
+    if (this->_data < _right._data)
+        return true;
+    else
+        return false;
+}
+bool stringAttribute::operator<=(const Attr &right) const
+{
+    const stringAttribute &_right = (const stringAttribute &)right;
+    if (this->_data <= _right._data)
+        return true;
+    else
+        return false;
+}
+bool stringAttribute::operator>(const Attr &right) const
+{
+    const stringAttribute &_right = (const stringAttribute &)right;
+    if (this->_data > _right._data)
+        return true;
+    else
+        return false;
+}
+bool stringAttribute::operator>=(const Attr &right) const
+{
+    const stringAttribute &_right = (const stringAttribute &)right;
+    if (this->_data >= _right._data)
+        return true;
+    else
+        return false;
+}
+void stringAttribute::disp() const
+{
+    cout << this->_data << " ";
+}
